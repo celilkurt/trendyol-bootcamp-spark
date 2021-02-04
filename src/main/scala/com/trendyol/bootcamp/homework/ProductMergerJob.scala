@@ -41,24 +41,22 @@ object ProductMergerJob {
 
     val allProducts = products.union(changedProducts)
 
+    def getLastCreatedRecord(products:Iterator[Product]) =
+      products.foldLeft(products.next())(
+        (curProduct, product) => if (product.timestamp > curProduct.timestamp) product else curProduct)
+
    val curRecords = allProducts.groupByKey(_.id)
-     .mapGroups((_, productGroup) => {
-       productGroup.foldLeft(productGroup.next())(
-        (curProduct,product) => if(product.timestamp > curProduct.timestamp) product else curProduct)
-   })
+     .mapGroups((_, productGroup) => getLastCreatedRecord(productGroup))
+
+
+
 
     curRecords
       .repartition(1)
       .write
       .partitionBy("brand")
-      .mode(SaveMode.Overwrite) // Overwrite data in target folder
+      .mode(SaveMode.Overwrite)
       .json("output/homework/products")
-
-
-
-
-
-
 
   }
 
