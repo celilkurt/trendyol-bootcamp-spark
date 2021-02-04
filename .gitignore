@@ -1,7 +1,8 @@
 .metals/
 .bloop/
-project/.bloop/
+project/
 
+output/
 target/
 .idea/
 metastore_db/
